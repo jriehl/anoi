@@ -1,5 +1,8 @@
 from ast import literal_eval
+import collections
 import dataclasses
+import dateutil.parser as dp
+import functools
 from typing import Iterable, List, Tuple
 from lxml.etree import Element
 
@@ -54,3 +57,32 @@ def walk_article(article: ArticleElement) -> Iterable[ArticleElement]:
     for child in article.children:
         for descendant in walk_article(child):
             yield descendant
+
+@functools.cache
+def make_parent_property(root: ArticleElement):
+    parent = collections.defaultdict(lambda: None)
+    def _set_prop(branch):
+        for child in branch.children:
+            parent[child] = branch
+    for descendant in walk_article(root):
+        _set_prop(descendant)
+    return parent
+
+@functools.cache
+def make_timestamp_property(root: ArticleElement):
+    timestamp = collections.defaultdict(lambda: None)
+    parents = make_parent_property(root)
+    def _set_prop(branch):
+        try:
+            if branch.elem.tag in HEADERS:
+                timestamp[branch] = dp.parse(branch.elem.text, fuzzy=True)
+        except dp.ParserError as err:
+            if not str(err).startswith('String does not contain a date:'):
+                raise err
+        if timestamp[branch] is None:
+            parent = parents[branch]
+            if parent is not None and parent in timestamp:
+                timestamp[branch] = timestamp[parent]
+    for descendant in walk_article(root):
+        _set_prop(descendant)
+    return timestamp

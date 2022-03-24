@@ -191,12 +191,13 @@ class ANOIWordNetLoader:
             print(f'Allocated atom count: {len(self.space.uid_map)}')
 
 
-def main():
+def main(verbose: bool = False):
     space = basis.ANOIInMemorySpace()
     namespace = basis.ANOINamespace(space, 'wordnet')
-    loader = ANOIWordNetLoader(namespace, True)
+    loader = ANOIWordNetLoader(namespace, verbose=verbose)
     loader.load()
+    return namespace
 
 
 if __name__ == '__main__':
-    main()
+    main(True)
