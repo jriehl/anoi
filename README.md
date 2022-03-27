@@ -8,7 +8,8 @@ ANOI Web Application
 --------------------
 
 ```console
-TBD
+$ export FLASK_APP=wapp
+$ flask run
 ```
 
 ANOI Design

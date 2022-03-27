@@ -1,10 +1,12 @@
 import functools
+import inspect
 from . import basis, wordnet as wn
 
 
 class ANOIFacade:
     def __init__(self, space_or_cls, verbose:bool = False, *args, **kws):
-        if type(space_or_cls) == type and issubclass(space_or_cls, basis.ANOISpace):
+        is_cls = inspect.isclass(space_or_cls)
+        if is_cls and issubclass(space_or_cls, basis.ANOISpace):
             self.space = space_or_cls(*args, **kws)
         elif isinstance(space_or_cls, basis.ANOISpace):
             self.space = space_or_cls
