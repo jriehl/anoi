@@ -36,39 +36,16 @@ def viewer(title):
 
 @app.route('/nav/<uid>')
 def nav(uid: str):
+    my_facade = get_facade()
     try:
         if uid.startswith('0x'):
             uid = int(uid[2:], 16)
         else:
             uid = int(uid)
+        return my_facade.render_uid(uid)
     except ValueError:
         raise NotFound()
-    my_facade = get_facade()
-    uid_to_html = my_facade.uid_to_html
-    space = my_facade.space
-    if not space.is_valid(uid):
-        raise NotFound()
-    iter_0 = ((uid_to_html(key), uid_to_html(space.cross(uid, key)))
-        for key in sorted(space.get_keys(uid)))
-    nav_iter = ((key if len(key) > 1 else f'"{key}"', value)
-        for key, value in iter_0)
-    navbar = ''.join(f'<li>{key} : {value}</li>' for key, value in nav_iter)
-    contents = ''.join(my_facade.uid_to_html(child)
-        for child in space.get_content(uid))
-    title = f'UID {uid} ({hex(uid)})'
-    return f'''<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{title}</title>
-  </head>
-  <body>
-    <h1>{title}</h1>
-    <ul>{navbar}</ul>
-    <p>{contents}</p>
-  </body>
-</html>
-'''
+
 
 if __name__ == "__main__":
     app.run()

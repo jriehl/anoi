@@ -3,13 +3,17 @@ from . import basis, wordnet as wn
 
 
 class ANOIFacade:
-    def __init__(self, space_cls, *args, **kws):
-        if not issubclass(space_cls, basis.ANOISpace):
-            raise TypeError(f'{space_cls} is not a subtype of ANOISpace')
-        self.space = space_cls(*args, **kws)
+    def __init__(self, space_or_cls, verbose:bool = False, *args, **kws):
+        if type(space_or_cls) == type and issubclass(space_or_cls, basis.ANOISpace):
+            self.space = space_or_cls(*args, **kws)
+        elif isinstance(space_or_cls, basis.ANOISpace):
+            self.space = space_or_cls
+        else:
+            raise TypeError(f'{space_or_cls} is not an instance or subtype '
+                'of ANOISpace')
         self.namespace = basis.ANOINamespace(self.space, 'wordnet')
         self.name_uid = self.namespace.basis.get_name('NAME')
-        self.loader = wn.ANOIWordNetLoader(self.namespace, True)
+        self.loader = wn.ANOIWordNetLoader(self.namespace, verbose)
         if not self.loader.loaded:
             self.loader.load()
 
@@ -30,9 +34,37 @@ class ANOIFacade:
             uid_str = hex(uid)
         return f'<a href="{hex(uid)}">{uid_str}</a>' if valid else uid_str
 
+    def render_uid(self, uid: int) -> str:
+        uid_to_html = self.uid_to_html
+        space = self.space
+        if not space.is_valid(uid):
+            raise ValueError()
+        iter_0 = ((uid_to_html(key), uid_to_html(space.cross(uid, key)))
+            for key in sorted(space.get_keys(uid)))
+        nav_iter = ((key if len(key) > 1 else f'"{key}"', value)
+            for key, value in iter_0)
+        navbar = ''.join(
+            f'<li>{key} : {value}</li>' for key, value in nav_iter)
+        contents = ''.join(
+            uid_to_html(child) for child in space.get_content(uid))
+        title = f'UID {uid} ({hex(uid)})'
+        return f'''<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{title}</title>
+  </head>
+  <body>
+    <h1>{title}</h1>
+    <ul>{navbar}</ul>
+    <p>{contents}</p>
+  </body>
+</html>
+'''
+
 
 @functools.cache
 def get_facade(
-    space_cls = basis.ANOIInMemorySpace, *args, **kws
+    space_or_cls = basis.ANOIInMemorySpace, *args, **kws
 ) -> ANOIFacade:
-    return ANOIFacade(space_cls, *args, **kws)
+    return ANOIFacade(space_or_cls, *args, **kws)
