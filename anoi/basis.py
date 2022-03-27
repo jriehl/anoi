@@ -252,9 +252,8 @@ class ANOITrie:
         return self.get_vector(str_to_vec(name))
 
     def get_vector(self, vec: Tuple[int]) -> int:
-        ret_val = ANOIReserved.NIL.value
+        ret_val = NIL = ANOIReserved.NIL.value
         if len(vec) > 0:
-            NIL = ANOIReserved.NIL.value
             cross = self.space.cross
             ret_val = cross(self.root, vec[0])
             i = 1
@@ -263,6 +262,21 @@ class ANOITrie:
                 i = i + 1
             if ret_val != NIL:
                 ret_val = cross(ret_val, ANOIReserved.REF.value)
+        return ret_val
+
+    def has_vector(self, vec: Tuple[int]) -> bool:
+        ret_val = False
+        if len(vec) > 0:
+            NIL = ANOIReserved.NIL.value
+            cross = self.space.cross
+            crnt_uid = cross(self.root, vec[0])
+            i = 1
+            while (i < len(vec)) and (crnt_uid != NIL):
+                crnt_uid = cross(crnt_uid, vec[i])
+                i = i + 1
+            if crnt_uid != NIL:
+                crnt_uid = cross(crnt_uid, ANOIReserved.REF.value)
+            ret_val = crnt_uid != NIL
         return ret_val
 
     def has_name(self, name: str) -> bool:
@@ -362,17 +376,27 @@ def root_trie(space: ANOISpace) -> ANOITrie:
 
 
 class ANOITrieProxy:
+    __trie__: ANOITrie = None
+
     def __init__(self, trie: ANOITrie):
         super().__setattr__('__trie__', trie)
 
+    def __contains__(self, name: str) -> bool:
+        return self.__trie__.has_name(name)
+
     def __getattr__(self, name: str) -> int:
+        if not self.__trie__.has_name(name):
+            raise AttributeError(f"Trie proxy has no attribute '{name}'")
         return self.__trie__.get_name(name)
 
     def __setattr__(self, name: str, value: Any) -> None:
         self.__trie__.set_name(name, int(value))
 
-    def __getitem__(self, item: Any) -> int:
-        return self.__trie__.get_name(str(item))
+    def __getitem__(self, item: str) -> int:
+        vec = str_to_vec(item)
+        if not self.__trie__.has_vector(vec):
+            raise KeyError(item)
+        return self.__trie__.get_vector(vec)
 
     def __setitem__(self, item: Any, value: Any) -> None:
         self.__trie__.set_name(str(item), int(value))
