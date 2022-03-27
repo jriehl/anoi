@@ -86,13 +86,12 @@ class ANOIWordNetLoader:
         if term_uid is not None:
             assert self.namespace.get_name(term) == term_uid
         else:
-            ns_uid = self.ns_proxy[term]
-            if ns_uid == NIL:
+            if term not in self.ns_proxy:
                 term_uid = self.space.get_uid()
                 self.term_map[term] = term_uid
                 self.namespace.set_name(term, term_uid)
             else:
-                self.term_map[term] = term_uid = ns_uid
+                self.term_map[term] = term_uid = self.ns_proxy[term]
         return term_uid
 
     def load(self):

@@ -393,10 +393,9 @@ class ANOITrieProxy:
         self.__trie__.set_name(name, int(value))
 
     def __getitem__(self, item: str) -> int:
-        vec = str_to_vec(item)
-        if not self.__trie__.has_vector(vec):
+        if not self.__trie__.has_name(item):
             raise KeyError(item)
-        return self.__trie__.get_vector(vec)
+        return self.__trie__.get_name(item)
 
     def __setitem__(self, item: Any, value: Any) -> None:
         self.__trie__.set_name(str(item), int(value))
