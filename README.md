@@ -297,4 +297,5 @@ by some delimiter character.  Proxies are a convenience for developers to
 expose a trie as a Python map object, mapping from strings to UID's.
 
 Another wishlist item is the ability to expose the web application's space
-via a RPC API (something like GRPC).
+via a RPC API (something like GRPC).  This would let me use the console to
+interact with the ANOI space, but still use the browser to render atom data.

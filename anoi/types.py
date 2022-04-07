@@ -51,7 +51,7 @@ class ANOIAtom:
         if default_namespace is not None:
             self.default_namespace = default_namespace
         else:
-            self.default_namespace = ANOINamespace(space, 'wordnet')
+            self.default_namespace = ANOINamespace.get(space, 'wordnet')
         self.ty = type
 
     def load(self, *args, **kws) -> None:
