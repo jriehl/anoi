@@ -115,7 +115,9 @@ class ANOIInMemorySpace(ANOISpace):
         return result
 
     def is_valid(self, uid: int) -> bool:
-        return (uid in self.uid_map) and (uid in self.uid_content)
+        # return ((uid in range(0x110000)) or 
+        #         ((uid in self.uid_map) and (uid in self.uid_content)))
+        return ((uid in self.uid_map) and (uid in self.uid_content))
 
     def set_content(self, uid: int, content: Tuple[int]) -> None:
         self.check(uid)
@@ -208,6 +210,8 @@ class ANOIRedis32Space(ANOISpace):
         return crnt
 
     def is_valid(self, uid: int) -> bool:
+        # if uid in range(0x110000):
+        #     return True
         uid_bytes = self.itob(uid)
         return self.db.hexists(self.content_key, uid_bytes)
 
@@ -401,6 +405,7 @@ class ANOITrieProxy:
         self.__trie__.set_name(str(item), int(value))
 
     @classmethod
+    @functools.cache
     def root(cls, space: ANOISpace):
         return cls(root_trie(space))
 
@@ -441,10 +446,9 @@ class ANOINamespace(ANOITrie):
         self.name_atom(result, name)
         return result
 
-
-@functools.cache
-def anoi_types(space: ANOISpace) -> ANOITrieProxy:
-    result = ANOITrieProxy(ANOINamespace(space, 'types'))
-    for builtin in ('STRING',):
-        result[builtin] = space.get_uid()
-    return result
+    @classmethod
+    @functools.cache
+    def get(cls, space: ANOISpace, name: str, basis_uid: int = None):
+        '''Either construct or return a singleton ANOINamespace instance.
+        '''
+        return cls(space, name, basis_uid)

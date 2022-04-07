@@ -274,3 +274,27 @@ the previous note.
 * Formatting - This is where ANOI punts; there is no good story associated with
   how ANOI handles nested or exotic formatting.
 * Content - This is where ANOI focuses.
+
+### 2022.03.28
+
+In my metaphor, types are metadata that add context (like formatting and
+structure) to "content" which is deemed "data".
+
+Open issues:
+
+* How do we keep track of property names?  I'd prefer them to be partitioned
+  to the types that use them rather than having a flat namespace.  However, a
+  flat namespace has a lot of appeal because it is so easy to implement and
+  understand.
+
+### 2022.04.07
+
+I wish I presently had time to smooth out the basis API for tries, namespace,
+and proxy objects.  Best I can offer at this point is read the code for
+yourself.  Basis tries act as naked dictionaries.  Namespaces vacuously add a
+name to a naked dictionary.  I envisage namespaces being nested and separated
+by some delimiter character.  Proxies are a convenience for developers to
+expose a trie as a Python map object, mapping from strings to UID's.
+
+Another wishlist item is the ability to expose the web application's space
+via a RPC API (something like GRPC).

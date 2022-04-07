@@ -10,6 +10,8 @@ from .basis import (
     ANOITrie,
     root_trie,
     ANOITrieProxy,
-    ANOINamespace,
-    anoi_types
+    ANOINamespace
+)
+from .types import (
+    anoi_types,
 )
