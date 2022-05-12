@@ -3,8 +3,8 @@
 import abc
 import dataclasses
 import functools
-from typing import Any, Dict, List, Optional, Set, Union
-from . import (
+from typing import Any, Dict, List, Optional, Set, Type, Union
+from .basis import (
     ANOISpace,
     ANOITrieProxy,
     ANOINamespace,
@@ -26,7 +26,7 @@ class ANOIAbstractType(abc.ABC):
     def get_free_vars(self) -> Set[ANOITypeVar]:
         raise NotImplementedError()
 
-    def build(self, *args, **kws) -> ANOIAtom:
+    def build(self, space: ANOISpace, *args, **kws) -> ANOIAtom:
         '''Returns an instance of this type where args are mapped to atom
         contents, and keywords mapped to properties.
 
@@ -40,6 +40,35 @@ class ANOIAbstractType(abc.ABC):
         '''
         raise NotImplementedError()
 
+    def dereify(self, atom: ANOIAtom) -> Type['ANOIAbstractType']:
+        '''Return a type
+        '''
+        raise NotImplementedError()
+
+
+class ANOIAnyType(ANOIAbstractType):
+    def check(self, atom: ANOIAtom) -> List[str]:
+        return []
+
+    def get_free_vars(self) -> Set[ANOITypeVar]:
+        return set()
+
+    def build(self, space: ANOISpace, *args, **kws) -> ANOIAtom:
+        result = ANOIAtom(space)
+        result.build(*args, **kws)
+        return result
+
+
+class ANOIUntypeableType(ANOIAbstractType):
+    def check(self, atom: ANOIAtom) -> List[str]:
+        return ['there is no typing what cannot be typed']
+
+    def get_free_vars(self) -> Set[ANOITypeVar]:
+        return set()
+
+    def build(self, space: ANOISpace, *args, **kws) -> ANOIAtom:
+        raise TypeError('there is no instantiation of what cannot be typed')
+
 
 @dataclasses.dataclass
 class ANOIType(ANOIAbstractType):
@@ -49,11 +78,11 @@ class ANOIType(ANOIAbstractType):
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.instantiate(self, *args, **kwds)
 
-    def check(self, atom: 'ANOIAtom') -> List[str]:
+    def check(self, atom: ANOIAtom) -> List[str]:
         result = []
         for prop in self.properties:
             if prop in atom:
-                prop.get_type().check()
+                result += prop.get_type().check()
         return result
 
     def get_free_vars(self) -> Set['ANOITypeVar']:

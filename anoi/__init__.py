@@ -12,6 +12,6 @@ from .basis import (
     ANOITrieProxy,
     ANOINamespace
 )
-from .types import (
+from .anoitypes import (
     anoi_types,
 )

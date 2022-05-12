@@ -1,6 +1,6 @@
 import unittest
 
-from .. import types
+from .. import anoitypes
 
 
 class TestANOITypes(unittest.TestCase):
