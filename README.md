@@ -299,3 +299,31 @@ expose a trie as a Python map object, mapping from strings to UID's.
 Another wishlist item is the ability to expose the web application's space
 via a RPC API (something like GRPC).  This would let me use the console to
 interact with the ANOI space, but still use the browser to render atom data.
+
+### 2022.04.09
+
+Okay, how do I describe types in ANOI?  How do I bootstrap types?  How bad do I
+want to embed ideas like atom _X_ must contain property _Y_, can contain 
+property _Z_, and must not contain property _W_, for arbitrary properties _Y_,
+_Z_, and _W_?
+
+Is there some partial ordering, or sub-classing of types?  Like the bottom
+type must be the nil-set of atoms, while the top type is the set of atoms with 
+arbitrary properties (may contain property _Z_, for all _Z_ in the set of 
+system properties) and have arbitrary contents.
+
+If an atom loosely corresponds to a "document", do we want to embed a schema
+that somehow describes constraints on atom contents?  How does such a system
+behave in the presence of sub-classing?
+
+Finally, what about the all the above, but with generic (parameterized) types
+and reflection into the ANOI data store?
+
+With a little thinking, it seems I want to be pragmatic enough that I don't get
+stuck in type theory, while creating a sound enough basis that the type system
+is lasting and full of features.
+
+### 2022.05.11
+
+Elided some sketches I made for a type layer (in 2022.04.13-14 range),
+preferring to write documented interfaces in the newer types module.
